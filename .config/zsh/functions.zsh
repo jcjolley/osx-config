@@ -1,3 +1,6 @@
+################################################################################
+# Follow the logs from a deployed service
+################################################################################
 function hkl() {
 	service=$1
 	context=${2:-'dev'}
@@ -13,6 +16,10 @@ function hkl() {
 	kubectl logs -n $namespace deployment/$service -f | grep "^{" | jq -r '{date: .timestamp, level: .level?, message: .message, exception: .exception?}'
 }
 
+
+################################################################################
+# Follow the error logs from a deployed service
+################################################################################
 function hkle() {
 	service=$1
 	context=${2:-'dev'}
@@ -28,6 +35,9 @@ function hkle() {
 	kubectl logs -n $namespace deployment/$service -f | grep "^{" | jq -r '{date: .timestamp, level: .level?, message: .message, exception: .exception?} | select(.level == "ERROR")'
 }
 
+################################################################################
+# Switch the kubectl context with friendly args like "dev", "stg", and "prd"
+################################################################################
 function kx() {
 	dev_context='gke_assuring-cockatoo-c4d6_us-west4_primary'
 	stg_context='gke_mint-moray-ca98_us-west4_primary'
