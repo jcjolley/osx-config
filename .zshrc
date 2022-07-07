@@ -1,0 +1,5 @@
+source "$HOME/.config/zsh/zinit.zsh"
+source "$HOME/.config/zsh/gcloud.zsh"
+source "$HOME/.config/zsh/completions.zsh"
+source "$HOME/.config/zsh/aliases.zsh"
+source "$HOME/.config/zsh/functions.zsh"

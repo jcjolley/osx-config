@@ -3,5 +3,14 @@
 
 !.gitignore
 !.zshrc
+!.ideavimrc
+!.tmux.conf
 
-!config/*/*
+!.config/
+!.config/*
+
+.config/gcloud
+.config/gcloud/*
+
+!.config/*/*
+!.config/*/*/*
