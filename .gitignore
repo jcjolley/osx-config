@@ -5,6 +5,7 @@
 !.zshrc
 !.ideavimrc
 !.tmux.conf
+!.fzf.zsh
 
 !.config/
 !.config/*
