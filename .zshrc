@@ -1,9 +1,17 @@
-source "$HOME/.config/zsh/zinit.zsh"
-source "$HOME/.config/zsh/gcloud.zsh"
-source "$HOME/.config/zsh/completions.zsh"
-source "$HOME/.config/zsh/aliases.zsh"
-source "$HOME/.config/zsh/functions.zsh"
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+config_root="$HOME/.config/zsh/"
 
-eval "$(atuin init zsh)"
+zsh_source_files=(
+	'zinit.zsh' 
+	'gcloud.zsh' 
+	'completions.zsh' 
+	'aliases.zsh' 
+	'functions.zsh' 
+	'fzf.zsh'
+)
+
+for partial_file in $zsh_source_files; do
+	file="$config_root/$partial_file"
+	[ -f "$file" ] && source "$file"
+done
+
