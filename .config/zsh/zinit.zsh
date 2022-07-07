@@ -11,31 +11,24 @@ source "$HOME/.local/share/zinit/zinit.git/zinit.zsh"
 autoload -Uz _zinit
 (( ${+_comps} )) && _comps[zinit]=_zinit
 
+ZVM_VI_INSERT_ESCAPE_BINDKEY=jk
+
 # Load a few important annexes, without Turbo
 # (this is currently required for annexes)
 zinit light-mode for \
     zdharma-continuum/zinit-annex-as-monitor \
     zdharma-continuum/zinit-annex-bin-gem-node \
     zdharma-continuum/zinit-annex-patch-dl \
-    zdharma-continuum/zinit-annex-rust
-
-# VI mode
-ZVM_VI_INSERT_ESCAPE_BINDKEY=jk
-zinit ice depth=1
-zinit light jeffreytse/zsh-vi-mode
-
-# Plugin history-search-multi-word loaded with investigating.
-zinit load zdharma-continuum/history-search-multi-word
-
-# Two regular plugins loaded without investigating.
-zinit light zsh-users/zsh-autosuggestions
-zinit light zdharma-continuum/fast-syntax-highlighting
-
-
-# Snippet
-zinit snippet https://gist.githubusercontent.com/hightemp/5071909/raw/
+    zdharma-continuum/zinit-annex-rust \
+    zsh-users/zsh-autosuggestions \
+    zdharma-continuum/fast-syntax-highlighting \
+    jeffreytse/zsh-vi-mode
 
 zinit ice pick"async.zsh" src"pure.zsh" # with zsh-async library that's bundled with it.
 zinit light sindresorhus/pure
+
+zinit ice wait'1'
+zinit light zdharma-continuum/history-search-multi-word
+
 
 ### End of Zinit's installer chunk
