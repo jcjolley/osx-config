@@ -43,16 +43,37 @@ function kx() {
 	stg_context='gke_mint-moray-ca98_us-west4_primary'
 	prd_context='gke_moved-gobbler-a6b8_us-west4_primary'
 
-	if [ $1=="dev" ] 
-	then
-		kubectl config use-context $dev_context
-	elif [ $1=="stg" ]
-	then
-		kubectl config use-context $stg_context
-	elif [ $1=="prd" ]
-	then
-		kubectl config use-context $prd_context
-	else
-		kubectl config use-context $1
-	fi
+	case "$1" in
+		dev)
+			kubectl config use-context $dev_context
+			;;
+		stg)
+			kubectl config use-context $stg_context
+			;;
+		prd)
+			kubectl config use-context $prd_context
+			;;
+		*)
+			echo "Usage: $0 <context>"
+			echo "Context must be one of (dev, stg, prd)"
+			exit 1
+			;;
+	esac
+}
+
+function pod_errors() {
+	while true; do
+		contexts=('dev' 'stg' 'prd')
+		for cx in $contexts; do
+			kx $cx 2>&1 >/dev/null
+			pods=$(kubectl get pods -n helios 2>&1 | tail -n +4)
+			error_pods=$(rg -v "(Running|Terminating)" <<< "$pods")
+			if [ -n "$error_pods" ]; then
+				clear
+				echo "$(date) - Environment: $cx"
+				echo $error_pods
+			fi
+		done
+		sleep 10
+	done 
 }
