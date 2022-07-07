@@ -4,4 +4,4 @@
 !.gitignore
 !.zshrc
 
-!*/config/*
+!config/*/*
