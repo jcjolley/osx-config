@@ -12,6 +12,7 @@
 
 .config/gcloud
 .config/gcloud/*
+.config/iterm2
 
 !.config/*/*
 !.config/*/*/*
