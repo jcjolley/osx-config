@@ -12,7 +12,7 @@ autoload -Uz _zinit
 (( ${+_comps} )) && _comps[zinit]=_zinit
 
 ZVM_VI_INSERT_ESCAPE_BINDKEY=jk
-
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#888888"
 # Load a few important annexes, without Turbo
 # (this is currently required for annexes)
 zinit light-mode for \

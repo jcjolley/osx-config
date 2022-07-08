@@ -1,3 +1,31 @@
+
+exception_log=' {
+	date: .timestamp?, 
+	level: .level?, 
+	message: .message?, 
+	exception: ( 
+		.exception? | if . != null then {
+			exceptionType: .exceptionType?,
+			message: .message?,
+			frames: (
+				.frames? 
+				| if . != null then map( 
+					{class: .class?, method: .method?, line: .line?}
+					| select(.class? | test("clearwater"))
+					| [.class?, .method?, .line?]
+					| join(":") 
+				) else . end
+			)
+		} else . end
+	)
+}'
+
+no_exception_log='{
+	date: .timestamp?, 
+	level: .level?, 
+	message: .message?, 
+}'
+
 ################################################################################
 # Follow the logs from a deployed service
 ################################################################################
@@ -12,8 +40,11 @@ function hkl() {
 		exit 1
 	fi
 
-	kx $context
-	kubectl logs -n $namespace deployment/$service -f | grep "^{" | jq -r '{date: .timestamp, level: .level?, message: .message, exception: .exception?}'
+	kx $context 2>&1 >/dev/null
+	kubectl logs -n $namespace deployment/$service -f 2>&1 \
+		| tail -n+2 \
+		| grep "^{" \
+		| jq --unbuffered -r "if .exception? != null then $exception_log else $no_exception_log end"
 }
 
 
@@ -31,8 +62,11 @@ function hkle() {
 		exit 1
 	fi
 
-	kx $context
-	kubectl logs -n $namespace deployment/$service -f | grep "^{" | jq -r '{date: .timestamp, level: .level?, message: .message, exception: .exception?} | select(.level == "ERROR")'
+	kx $context 2>&1 >/dev/null
+	kubectl logs -n $namespace deployment/$service -f 2>&1 \
+		| tail -n+2 \
+		| grep "^{" \
+		| jq --unbuffered -r "select(.level? == \"ERROR\") | $exception_log"
 }
 
 ################################################################################
@@ -61,13 +95,16 @@ function kx() {
 	esac
 }
 
+################################################################################
+# Show any pods with errors
+################################################################################
 function pod_errors() {
 	while true; do
 		contexts=('dev' 'stg' 'prd')
 		for cx in $contexts; do
 			kx $cx 2>&1 >/dev/null
 			pods=$(kubectl get pods -n helios 2>&1 | tail -n +4)
-			error_pods=$(rg -v "(Running|Terminating)" <<< "$pods")
+			error_pods=$(rg -v "(ContainerCreating|Running|Terminating)" <<< "$pods")
 			if [ -n "$error_pods" ]; then
 				clear
 				echo "$(date) - Environment: $cx"
