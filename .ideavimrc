@@ -39,6 +39,9 @@ imap <C-v> <Esc>:action $Paste<CR>
 map <C-A-j> :action MoveLineDown<CR>
 map <C-A-k> :action MoveLineUp<CR>
 map gh :action ShowErrorDescription<CR>
+map do :action Unwrap<CR>
+map ge :action GotoNextError<CR>
+map gE :action GotoPreviousError<CR>
 
 "*************************************** CURSIVE **********************************************
 
