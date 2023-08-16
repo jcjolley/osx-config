@@ -17,7 +17,8 @@ exception_log=' {
 				) else . end
 			)
 		} else . end
-	)
+	),
+	stackTrace: .stackTrace?
 }'
 
 no_exception_log='{
@@ -31,7 +32,7 @@ no_exception_log='{
 ################################################################################
 function hkl() {
 	service=$1
-	context=${2:-'dev'}
+	context=${2:-'prd1'}
 	namespace=${3:-'helios'}
 
 	if [ -z "$1" ] 
@@ -40,11 +41,11 @@ function hkl() {
 		exit 1
 	fi
 
-	kx $context 2>&1 >/dev/null
+	kubectx $context 2>&1 >/dev/null
 	kubectl logs -n $namespace deployment/$service -f 2>&1 \
-		| tail -n+2 \
-		| grep "^{" \
-		| jq --unbuffered -r "if .exception? != null then $exception_log else $no_exception_log end"
+		| egrep "^{" --line-buffered \
+		| jq --unbuffered -r "if .exception? != null then $exception_log else $no_exception_log end" -C \
+	        | sed 's/\\n/\n/g; s/\\t/\t/g'
 }
 
 
@@ -53,7 +54,7 @@ function hkl() {
 ################################################################################
 function hkle() {
 	service=$1
-	context=${2:-'dev'}
+	context=${2:-'prd1'}
 	namespace=${3:-'helios'}
 
 	if [ -z "$1" ] 
@@ -62,34 +63,34 @@ function hkle() {
 		exit 1
 	fi
 
-	kx $context 2>&1 >/dev/null
+	kubectx $context 2>&1 >/dev/null
 	kubectl logs -n $namespace deployment/$service -f 2>&1 \
-		| tail -n+2 \
-		| grep "^{" \
-		| jq --unbuffered -r "select(.level? == \"ERROR\") | $exception_log"
+		| egrep "^{" --line-buffered \
+		| jq --unbuffered -r "select(.level? == \"ERROR\") | $exception_log" -C \
+	        | sed 's/\\n/\n/g; s/\\t/\t/g'
 }
 
 ################################################################################
 # Switch the kubectl context with friendly args like "dev", "stg", and "prd"
 ################################################################################
 function kx() {
-	dev_context='gke_assuring-cockatoo-c4d6_us-west4_primary'
-	stg_context='gke_mint-moray-ca98_us-west4_primary'
-	prd_context='gke_moved-gobbler-a6b8_us-west4_primary'
+	dev_context='beta'
+	stg_context='stg1'
+	prd_context='prd1'
 
 	case "$1" in
 		dev)
-			kubectl config use-context $dev_context
+			kubectx $dev_context
 			;;
 		stg)
-			kubectl config use-context $stg_context
+			kubectx $stg_context
 			;;
 		prd)
-			kubectl config use-context $prd_context
+			kubectx $prd_context
 			;;
 		*)
 			echo "Usage: $0 <context>"
-			echo "Context must be one of (dev, stg, prd)"
+			echo "Context must be one of (beta, stg1, prd1)"
 			exit 1
 			;;
 	esac
